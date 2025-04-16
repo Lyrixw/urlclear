@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>URL Temizleyici</title>
+  <style>
+   
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    h2, h3 {
+      color: #ffffff;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      background-color: #333;
+      border: 1px solid #666;
+      color: #e0e0e0;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #5865F2;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4752c4;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+      background-color: #333;
+      color: #e0e0e0;
+      border: 1px solid #666;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    button:active {
+      background-color: #3e44d4;
+    }
+
+    .line-count {
+      color: #bbb;
+      font-size: 14px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .copy-btn-container {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .copy-btn {
+      margin-right: 20px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h2>URL Temizleyici </h2>
+
+  <input type="file" id="fileInput" accept=".txt"><br>
+  <button onclick="processFile()">Temizle</button>
+  
+  <h3>Sonuç:</h3>
+  <textarea id="output" readonly></textarea>
+
+  
+  <div class="copy-btn-container">
+    <button class="copy-btn" onclick="copyResult()">Sonucu Kopyala</button>
+    <div class="line-count" id="lineCount">Sonuç Sayısı: 0</div>
+  </div>
+
+  <script>
+    function processFile() {
+      const fileInput = document.getElementById('fileInput');
+      const output = document.getElementById('output');
+      const lineCount = document.getElementById('lineCount');
+
+      if (!fileInput.files.length) {
+        alert('Lütfen bir dosya seçin.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split('\n');
+        const cleaned = lines.map(line => {
+          const parts = line.trim().split(':');
+          if (parts.length >= 3) {
+            return parts.slice(1).join(':'); 
+          } else {
+            return ''; 
+          }
+        }).filter(line => line !== '');
+
+    
+        output.value = cleaned.join('\n');
+        
+        
+        lineCount.textContent = `Sonuç Sayısı: ${cleaned.length}`;
+      };
+      reader.readAsText(fileInput.files[0]);
+    }
+
+    function copyResult() {
+      const output = document.getElementById('output');
+      let resultText = output.value;
+      
+     
+      resultText += '\nUrl:pass Lyrix';
+      
+      
+      output.value = resultText;
+
+     
+      output.select();
+      document.execCommand('copy');
+      alert('Sonuç kopyalandı!');
+
+      
+    }
+  </script>
+
+</body>
+</html>
+
+
