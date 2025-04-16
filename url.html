@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>URL Temizleyici</title>
   <style>
-   
     body {
       font-family: Arial, sans-serif;
       padding: 30px;
@@ -68,25 +67,24 @@
       margin-top: 20px;
     }
 
-    .copy-btn {
+    .copy-btn, .download-btn {
       margin-right: 20px;
     }
-
   </style>
 </head>
 <body>
 
-  <h2>URL Temizleyici </h2>
+  <h2>URL Temizleyici</h2>
 
   <input type="file" id="fileInput" accept=".txt"><br>
   <button onclick="processFile()">Temizle</button>
-  
+
   <h3>Sonuç:</h3>
   <textarea id="output" readonly></textarea>
 
-  
   <div class="copy-btn-container">
     <button class="copy-btn" onclick="copyResult()">Sonucu Kopyala</button>
+    <button class="download-btn" onclick="downloadResult()">Sonuçları İndir</button>
     <div class="line-count" id="lineCount">Sonuç Sayısı: 0</div>
   </div>
 
@@ -97,51 +95,82 @@
       const lineCount = document.getElementById('lineCount');
 
       if (!fileInput.files.length) {
-        alert('Lütfen bir dosya seçin.');
+        alert('Dosya seç');
+        return;
+      }
+
+      const file = fileInput.files[0];
+
+      
+      if (file.type !== 'text/plain') {
+        alert('malmısın olm sadece .txt');
         return;
       }
 
       const reader = new FileReader();
+
       reader.onload = function(e) {
-        const lines = e.target.result.split('\n');
+        const fileContent = e.target.result;
+        const lines = fileContent.split('\n');
+
         const cleaned = lines.map(line => {
-          const parts = line.trim().split(':');
-          if (parts.length >= 3) {
-            return parts.slice(1).join(':'); 
+          let cleanedLine = line.trim();
+
+          
+          cleanedLine = cleanedLine.replace(/^https?:\/\/(www\.)?/i, '').trim();
+
+         
+          cleanedLine = cleanedLine.replace(/\s+/g, '').replace(/^[^:]+:/, '');
+
+          
+          const parts = cleanedLine.split(':').map(part => part.trim()).filter(part => part !== '');
+
+          
+          if (parts.length === 2) {
+            return parts[0] + ':' + parts[1]; 
           } else {
             return ''; 
           }
-        }).filter(line => line !== '');
+        }).filter(line => line !== ''); 
 
-    
+        if (cleaned.length === 0) {
+          alert('delimi etcen olm hatalı format yada içi boş git bak');
+          return;
+        }
+
         output.value = cleaned.join('\n');
-        
-        
         lineCount.textContent = `Sonuç Sayısı: ${cleaned.length}`;
       };
-      reader.readAsText(fileInput.files[0]);
+
+      reader.onerror = function() {
+        alert('dosyada hata çıktı');
+      };
+
+      reader.readAsText(file);
     }
 
     function copyResult() {
       const output = document.getElementById('output');
-      let resultText = output.value;
-      
-     
-      resultText += '\nUrl:pass Lyrix';
-      
-      
-      output.value = resultText;
-
-     
       output.select();
       document.execCommand('copy');
       alert('Sonuç kopyalandı!');
+    }
 
-      
+    function downloadResult() {
+      const output = document.getElementById('output').value;
+
+      if (!output.trim()) {
+        alert('Önce bir dosya yükleyip temizleyin!');
+        return;
+      }
+
+      const blob = new Blob([output], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'lyrixuserpass.txt';
+      link.click();
     }
   </script>
 
 </body>
 </html>
-
-
